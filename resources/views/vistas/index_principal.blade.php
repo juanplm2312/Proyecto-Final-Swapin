@@ -8,7 +8,6 @@
     <title>Swapin-Inicio.</title>
 </head>
 @section('title','Swapin')
-
 @section('content')
     <h1>!Swapin¡</h1>
     <p>Este es el contenido de la vista index.</p>

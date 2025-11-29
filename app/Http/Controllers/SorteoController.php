@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class SorteoController extends Controller
@@ -9,6 +9,26 @@ class SorteoController extends Controller
     /**
      * Display a listing of the resource.
      */
+public function login(Request $request)
+{
+    // Validar
+    $credentials = $request->validate([
+        'correo' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    // Intentar login
+    if (Auth::attempt(['correo' => $request->correo, 'password' => $request->password])) {
+    $request->session()->regenerate();
+    return redirect()->intended('/index');
+}
+
+    // Si falla
+    return back()->withErrors([
+    'correo' => 'Las credenciales no son válidas.',
+]);
+}
+
     public function index()
     {
         return view('vistas.index_principal');
