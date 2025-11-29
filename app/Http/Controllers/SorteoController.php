@@ -1,84 +1,73 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class SorteoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-public function login(Request $request)
+    public function logout(Request $request)
 {
-    // Validar
-    $credentials = $request->validate([
-        'correo' => 'required|email',
-        'password' => 'required',
-    ]);
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
 
-    // Intentar login
-    if (Auth::attempt(['correo' => $request->correo, 'password' => $request->password])) {
-    $request->session()->regenerate();
-    return redirect()->intended('/index');
+    return redirect()->route('home');
 }
 
-    // Si falla
-    return back()->withErrors([
-    'correo' => 'Las credenciales no son válidas.',
-]);
-}
+    // ============================
+    // 🔐 LOGIN
+    // ============================
+    public function login(Request $request)
+    {
+        // Validar datos
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required'
+        ]);
 
+        // Autenticar
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+            return redirect('/');   // Va a la página protegida
+        }
+
+        return back()->withErrors(['email' => 'Credenciales incorrectas']);
+    }
+
+    // ============================
+    // 📝 REGISTRO
+    // ============================
+    public function register(Request $request)
+    {
+        // Validar inputs
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:6'
+        ]);
+
+        // Crear usuario
+        $user = User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Loguearlo automáticamente
+        Auth::login($user);
+
+        return redirect('/'); // Redirige al home protegido
+    }
+
+    // ============================
+    // 🏠 PÁGINA PRINCIPAL
+    // ============================
     public function index()
     {
-        return view('vistas.index_principal');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('vistas.index'); // Cambia según tu vista
     }
 }

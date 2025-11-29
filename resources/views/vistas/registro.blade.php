@@ -57,6 +57,17 @@
             border-color: #1f6feb;
         }
 
+        /* Campo en error */
+        .input-error {
+            border-color: #ff4d4d !important;
+        }
+
+        .error-text {
+            color: #ff6b6b;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
         .register-btn {
             width: 100%;
             padding: 12px;
@@ -86,6 +97,16 @@
         .extra-links a:hover {
             color: #1f6feb;
         }
+
+        .alert-error {
+            background: #441c1c;
+            color: #ffb4b4;
+            border: 1px solid #6b0000;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -94,22 +115,58 @@
     <div class="register-container">
         <h2>Crear cuenta</h2>
 
+        {{-- Mostrar errores generales --}}
+        @if ($errors->any())
+            <div class="alert-error">
+                ⚠️ Corrige los errores antes de continuar.
+            </div>
+        @endif
+
         <form action="{{ route('registro.post') }}" method="POST">
             @csrf
 
             <div class="form-group">
                 <label>Correo:</label>
-                <input type="email" name="correo" placeholder="Ingresa tu correo" required>
+                <input 
+                    type="email" 
+                    name="email" 
+                    value="{{ old('email') }}"
+                    class="@error('email') input-error @enderror"
+                    placeholder="Ingresa tu correo" 
+                    required>
+                
+                @error('email')
+                    <p class="error-text">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label>Nombre:</label>
-                <input type="text" name="usuario" placeholder="Ingresa tu nombre" required>
+                <input 
+                    type="text" 
+                    name="name" 
+                    value="{{ old('name') }}"
+                    class="@error('name') input-error @enderror"
+                    placeholder="Ingresa tu nombre" 
+                    required>
+
+                @error('name')
+                    <p class="error-text">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label>Contraseña:</label>
-                <input type="password" name="password" placeholder="Crea una contraseña" required>
+                <input 
+                    type="password" 
+                    name="password" 
+                    class="@error('password') input-error @enderror"
+                    placeholder="Crea una contraseña" 
+                    required>
+
+                @error('password')
+                    <p class="error-text">{{ $message }}</p>
+                @enderror
             </div>
 
             <button class="register-btn" type="submit">Registrarse</button>
