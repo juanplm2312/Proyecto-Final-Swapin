@@ -19,14 +19,11 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $credenciales = [
-            'email' => $request->email,
-            'password' => $request->password
-        ];
+        $credenciales = $request->only('email', 'password');
 
         if (Auth::attempt($credenciales)) {
             $request->session()->regenerate();
-            return redirect()->route('home');   // requerido por tests
+            return redirect()->route('home');   // ✔️ requerido por tests
         }
 
         return back()->withErrors([
@@ -53,7 +50,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('home');   // requerido por los tests
+        return redirect()->route('home');   // ✔️ requerido por tests
     }
 
     // ===========================
@@ -66,6 +63,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        return redirect()->route('login'); 
     }
 }
